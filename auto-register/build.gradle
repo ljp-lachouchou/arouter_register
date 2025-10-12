@@ -1,0 +1,45 @@
+plugins {
+    id 'java-library'
+    alias(libs.plugins.jetbrains.kotlin.jvm)
+    id 'java-gradle-plugin'
+}
+apply plugin: 'maven-publish'
+gradlePlugin {
+    plugins {
+        // 这里的 "autoRegister" 是自定义名称（可改），但 id 必须固定
+        autoRegister {
+            id = 'com.ljp.auto_register' // 这是插件的唯一 ID，引用时必须用这个
+            implementationClass = 'com.ljp.auto_register.launch.AutoRegisterPlugin' // 插件入口类（必须正确）
+        }
+    }
+}
+publishing {
+    publications {
+        maven(MavenPublication) {
+            from components.java
+            groupId = "com.ljp.auto_register" // 插件的 Group ID
+            artifactId = "auto-register"       // 插件的 Artifact ID
+            version = "1.0.0"                  // 插件版本
+        }
+    }
+    repositories {
+        mavenLocal()
+    }
+}
+
+java {
+    sourceCompatibility JavaVersion.VERSION_11
+    targetCompatibility JavaVersion.VERSION_11
+}
+
+kotlin {
+    compilerOptions {
+        jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_11
+    }
+}
+dependencies {
+    implementation(gradleApi())
+    implementation("org.ow2.asm:asm:9.4")
+    implementation("org.ow2.asm:asm-commons:9.4")
+    implementation('com.android.tools.build:gradle:8.1.1')
+}
