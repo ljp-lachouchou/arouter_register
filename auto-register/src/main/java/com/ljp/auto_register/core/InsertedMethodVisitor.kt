@@ -4,14 +4,18 @@ import com.ljp.auto_register.launch.AutoRegisterAsmVisitorClassFactory
 import com.ljp.auto_register.util.ScanSetting
 import org.objectweb.asm.MethodVisitor
 import org.objectweb.asm.Opcodes
+import java.io.File
 
 class InsertedMethodVisitor(mv: MethodVisitor? = null) : MethodVisitor(Opcodes.ASM9,mv) {
     override fun visitInsn(opcode: Int) {
         //返回之前插入代码
         if (opcode >= Opcodes.IRETURN && opcode <= Opcodes.RETURN) {
             AutoRegisterAsmVisitorClassFactory.registerList.forEach { ext->
-                ext.classList.forEach { className->
-                    println("插入代码：$className")
+                ext.classList.map{className->
+                    className.replace('/','.').replace(File.separatorChar,'.')
+                }
+                .forEach { className->
+                    println("插入代码：${className}")
                     mv?.visitLdcInsn(className)
                     mv?.visitMethodInsn(
                         Opcodes.INVOKESTATIC,
