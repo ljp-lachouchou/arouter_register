@@ -9,6 +9,8 @@ import com.ljp.auto_register.core.AutoRegisterAsmVisitor
 import com.ljp.auto_register.core.InsertedClassVisitor
 import com.ljp.auto_register.util.Logger
 import com.ljp.auto_register.util.ScanSetting
+import org.apache.tools.ant.taskdefs.Property
+import org.gradle.api.tasks.Input
 import org.objectweb.asm.ClassVisitor
 
 
@@ -26,7 +28,6 @@ abstract class AutoRegisterAsmVisitorClassFactory : AsmClassVisitorFactory<AutoR
 //        println("ljp.ARouter::Scan ${classContext.currentClassData.className}")
         return  AutoRegisterAsmVisitor(nextClassVisitor)
     }
-
 
     override fun isInstrumentable(classData: ClassData): Boolean {
         val className = classData.className

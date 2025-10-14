@@ -22,10 +22,10 @@ class AutoRegisterPlugin : Plugin<Project>{
             AutoRegisterAsmVisitorClassFactory.registerList.add(ScanSetting("IInterceptorGroup"))
             AutoRegisterAsmVisitorClassFactory.registerList.add(ScanSetting("IProviderGroup"))
             println("ljp.ARouter::Register ${AutoRegisterAsmVisitorClassFactory.registerList.size}")
-            variant.instrumentation.transformClassesWith(
-                AutoRegisterAsmVisitorClassFactory::class.java,
-                InstrumentationScope.ALL
-            ) {}
+//            variant.instrumentation.transformClassesWith(
+//                AutoRegisterAsmVisitorClassFactory::class.java,
+//                InstrumentationScope.ALL
+//            ) {}
 //            variant.instrumentation.transformClassesWith(
 //                InsertedAsmVisitorClassFactory::class.java,
 //                InstrumentationScope.ALL

@@ -1,11 +1,9 @@
 package com.ljp.auto_register.core
 
-import com.ljp.auto_register.launch.AutoRegisterAsmVisitorClassFactory
+import com.ljp.auto_register.util.Logger
 import com.ljp.auto_register.util.MatchUtil
 import com.ljp.auto_register.util.ScanSetting
-import org.gradle.api.Action
 import org.gradle.api.DefaultTask
-import org.gradle.api.Task
 import org.gradle.api.file.Directory
 import org.gradle.api.file.RegularFile
 import org.gradle.api.file.RegularFileProperty
@@ -67,6 +65,7 @@ abstract class InsertedTask : DefaultTask() {
         jars.get().forEach { file ->
             JarFile(file.asFile).use { jarFile->
                 jarFile.entries().asIterator().forEach { entry->
+                    entry.time = 0
                     if (!entry.isDirectory && entry.name.contains(ScanSetting.GENERATE_TO_CLASS_FILE_NAME)) {
 //                        println("jar entry target ${entry.name}")
                         jarFile.getInputStream(entry).use {
@@ -76,9 +75,15 @@ abstract class InsertedTask : DefaultTask() {
                     else {
                         kotlin.runCatching {
                             jarFile.getInputStream(entry).use {
+                                if (MatchUtil.isContribute(entry.name)) {
+                                    registeredClass(it.readAllBytes())
+                                }
 //                                if (MatchUtil.isImplement(it)) {
 //                                    println("jar scan entry ${entry.name}")
 //                                }
+
+                            }
+                            jarFile.getInputStream(entry).use {
                                 jarOutput.putNextEntry(JarEntry(entry.name))
                                 it.copyTo(jarOutput)
                             }
@@ -89,7 +94,21 @@ abstract class InsertedTask : DefaultTask() {
             }
         }
     }
-
+    private fun registeredClass(bytes:ByteArray) {
+        if (bytes.size < 8) {
+            Logger.i("无效的 .class 字节数组，长度不足 8 字节：${bytes.size}")
+            return // 跳过无效文件，避免 ASM 解析报错
+        }
+        val input = ByteArrayInputStream(bytes)
+        val reader = ClassReader(input)
+        val classWriter = ClassWriter(ClassWriter.COMPUTE_MAXS)
+        val visitor = AutoRegisterAsmVisitor(classWriter)
+        try {
+            reader.accept(visitor,ClassReader.EXPAND_FRAMES)
+        }catch (e:Exception) {
+            Logger.i("注册类时发生异常：${e.message}")
+        }
+    }
     private fun processDirs(jarOutput: JarOutputStream) {
         dirs.get().forEach { dir ->
             dir.asFile.walk().forEach { file->
@@ -100,9 +119,15 @@ abstract class InsertedTask : DefaultTask() {
 //                    println("jar file entryName: $entryName")
                     jarOutput.putNextEntry(JarEntry(entryName))
                     file.inputStream().use {
+                        if (MatchUtil.isContribute(entryName)) {
+                            registeredClass(it.readAllBytes())
+                        }
 //                        if (MatchUtil.isImplement(it)) {
 //                            println("jar scan file  $relativePath")
 //                        }
+
+                    }
+                    file.inputStream().use {
                         it.copyTo(jarOutput)
                     }
                     jarOutput.closeEntry()
