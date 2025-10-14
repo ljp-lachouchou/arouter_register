@@ -17,24 +17,27 @@ abstract class AutoRegisterAsmVisitorClassFactory : AsmClassVisitorFactory<AutoR
 
     }
     companion object {
-        val registerList = mutableListOf<ScanSetting>()
+        val registerList = mutableSetOf<ScanSetting>()
     }
     override fun createClassVisitor(
         classContext: ClassContext,
         nextClassVisitor: ClassVisitor
     ): ClassVisitor {
+//        println("ljp.ARouter::Scan ${classContext.currentClassData.className}")
         return  AutoRegisterAsmVisitor(nextClassVisitor)
     }
 
+
     override fun isInstrumentable(classData: ClassData): Boolean {
         val className = classData.className
-        val  isExcluded  =  (className.contains("android/") && !className.contains("arouter")) ||
+        val  isExcluded  =  (className.contains("android.") && !className.contains("arouter")) ||
                 // 排除资源类 R
-                className.endsWith("/R") ||
+                className.endsWith(".R") ||
                 // 排除其他系统/框架类（前缀匹配更精确）
-                className.startsWith("androidx/") ||
-                className.startsWith("kotlin/") ||
-                className.startsWith("java/")
+                className.startsWith("androidx.") ||
+                className.startsWith("kotlin.") ||
+                className.startsWith("java.") ||
+                className.startsWith("kotlinx.")
         return  !isExcluded
     }
 }

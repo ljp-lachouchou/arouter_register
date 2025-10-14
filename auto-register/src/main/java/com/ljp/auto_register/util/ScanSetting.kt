@@ -21,7 +21,18 @@ class ScanSetting(val interfaceName:String) {
      * scan result for {@link #interfaceName}
      * class names in this list
      */
-    val classList: MutableList<String> = mutableListOf()
+    val classList: MutableSet<String> = mutableSetOf()
+    override fun equals(other: Any?): Boolean {
+        if (other == null) return false
+        if (this === other) return true
+        if (javaClass != other.javaClass) return false
+        other as ScanSetting
+        if (interfaceName != other.interfaceName) return false
+        return true
+    }
 
+    override fun hashCode(): Int {
+        return interfaceName.hashCode()
+    }
 
 }

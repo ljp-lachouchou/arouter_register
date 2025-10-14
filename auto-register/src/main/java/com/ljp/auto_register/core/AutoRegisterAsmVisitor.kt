@@ -29,7 +29,7 @@ class AutoRegisterAsmVisitor(nextClassVisitor: ClassVisitor) : ClassVisitor(Opco
         currentClassName?.let { className->
             AutoRegisterAsmVisitorClassFactory.registerList.forEach { scanSetting ->
                 implementedInterfaceNames.forEach { implementedInterface ->
-                    if (implementedInterface.contains(scanSetting.interfaceName) && !scanSetting.classList.contains(className)) {
+                    if (implementedInterface.contains(scanSetting.interfaceName)) {
                         Logger.i("$className implements $implementedInterface, add to registerList")
                         println("添加到 registerList: $className")
                         scanSetting.classList.add(className)
