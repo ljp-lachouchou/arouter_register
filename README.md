@@ -1,0 +1,2 @@
+# arouter_register
+支持arouter在AGP8下的启动优化
